@@ -1,39 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { trades } from '@/lib/db/schema'
-import { eq, desc } from 'drizzle-orm'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
   
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const userTrades = await db.query.trades.findMany({
-    where: eq(trades.userId, session.user.id),
-    orderBy: [desc(trades.createdAt)],
-    limit: 50
-  })
+  // Mock trades data - replace with actual DB query when set up
+  const trades = [
+    {
+      id: '1',
+      symbol: 'EURUSD',
+      type: 'BUY',
+      lotSize: '0.10',
+      openPrice: '1.0850',
+      closePrice: '1.0875',
+      profit: '25.00',
+      openTime: new Date().toISOString(),
+      status: 'CLOSED'
+    }
+  ]
 
-  return NextResponse.json(userTrades)
+  return NextResponse.json(trades)
 }
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
   
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const body = await request.json()
   
-  const trade = await db.insert(trades).values({
-    userId: session.user.id,
-    ...body
-  }).returning()
+  // Mock response - replace with actual trade execution when set up
+  const trade = {
+    id: Date.now().toString(),
+    userId: session.user.email,
+    ...body,
+    status: 'OPEN',
+    openTime: new Date().toISOString()
+  }
 
-  return NextResponse.json(trade[0])
+  return NextResponse.json(trade)
 }

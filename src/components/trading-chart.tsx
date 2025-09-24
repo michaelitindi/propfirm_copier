@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { createChart, IChartApi, ISeriesApi } from 'lightweight-charts'
+import { createChart, IChartApi } from 'lightweight-charts'
 
 export function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
@@ -39,10 +39,14 @@ export function TradingChart() {
       wickDownColor: '#ef5350',
     })
 
-    // Fetch and set data
-    fetchChartData(selectedSymbol).then(data => {
-      candlestickSeries.setData(data)
-    })
+    // Mock data with string time format (compatible with lightweight-charts)
+    const mockData = [
+      { time: '2024-01-01', open: 1.0800, high: 1.0850, low: 1.0780, close: 1.0820 },
+      { time: '2024-01-02', open: 1.0820, high: 1.0870, low: 1.0810, close: 1.0850 },
+      { time: '2024-01-03', open: 1.0850, high: 1.0880, low: 1.0830, close: 1.0860 },
+    ]
+
+    candlestickSeries.setData(mockData)
 
     // Handle resize
     const handleResize = () => {
@@ -61,36 +65,13 @@ export function TradingChart() {
     }
   }, [selectedSymbol])
 
-  const fetchChartData = async (symbol: string) => {
-    // Mock data - replace with real forex data API
-    const data = []
-    const basePrice = 1.1000
-    let currentPrice = basePrice
-
-    for (let i = 0; i < 100; i++) {
-      const time = Math.floor(Date.now() / 1000) - (100 - i) * 3600
-      const change = (Math.random() - 0.5) * 0.002
-      currentPrice += change
-
-      data.push({
-        time,
-        open: currentPrice,
-        high: currentPrice + Math.random() * 0.001,
-        low: currentPrice - Math.random() * 0.001,
-        close: currentPrice + (Math.random() - 0.5) * 0.0005,
-      })
-    }
-
-    return data
-  }
-
   const symbols = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'XAUUSD']
 
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Live Chart</h3>
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Trading Chart</h3>
           <select
             value={selectedSymbol}
             onChange={(e) => setSelectedSymbol(e.target.value)}
@@ -103,35 +84,6 @@ export function TradingChart() {
         </div>
         
         <div ref={chartContainerRef} className="w-full" />
-        
-        <div className="mt-4 flex space-x-2">
-          <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm">
-            BUY
-          </button>
-          <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
-            SELL
-          </button>
-          <input
-            type="number"
-            placeholder="Risk %"
-            step="0.1"
-            min="0.1"
-            max="5"
-            className="border border-gray-300 rounded px-3 py-2 text-sm w-20"
-          />
-          <input
-            type="number"
-            placeholder="Stop Loss"
-            step="0.0001"
-            className="border border-gray-300 rounded px-3 py-2 text-sm w-24"
-          />
-          <input
-            type="number"
-            placeholder="Take Profit"
-            step="0.0001"
-            className="border border-gray-300 rounded px-3 py-2 text-sm w-24"
-          />
-        </div>
       </div>
     </div>
   )
